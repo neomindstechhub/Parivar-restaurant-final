@@ -15,6 +15,12 @@ dist-ssr
 .tanstack/**
 .nitro
 *.local
+tsconfig.tsbuildinfo
+
+# Python
+__pycache__/
+*.pyc
+backend/.venv
 
 # Environment variables — never commit secrets
 .env

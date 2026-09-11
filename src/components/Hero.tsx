@@ -1,5 +1,4 @@
 import { motion, useScroll, useTransform } from "framer-motion";
-import { Link } from "@tanstack/react-router";
 import { useRef } from "react";
 // import heroBg from "@/assets/hero-restaurant.jpg";
 import heroBg from "@/assets/biryani.mp4";
@@ -102,20 +101,20 @@ export function Hero() {
             transition={{ duration: 1, delay: 1.2 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-4"
           >
-            <Link
-              to="/menu"
+            <a
+              href="#menu"
               className="group relative inline-flex items-center justify-center px-10 py-4 rounded-full text-sm uppercase tracking-[0.25em] font-medium text-primary-foreground overflow-hidden shadow-gold-glow transition-transform hover:scale-105"
               style={{ background: "var(--gradient-gold)" }}
             >
               <span className="relative z-10">Dine In</span>
               <span className="absolute inset-0 bg-white/25 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-            </Link>
-            <Link
-              to="/menu"
+            </a>
+            <a
+              href="#menu"
               className="group relative inline-flex items-center justify-center px-10 py-4 rounded-full text-sm uppercase tracking-[0.25em] font-medium text-gold border border-gold/60 hover:bg-gold hover:text-primary-foreground transition-all duration-500"
             >
               Take Away
-            </Link>
+            </a>
           </motion.div>
         </motion.div>
       </div>

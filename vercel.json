@@ -1,12 +1,8 @@
 {
-  "buildCommand": "mkdir -p ~/.config/uv && echo '[pip]' > ~/.config/uv/uv.toml && echo 'link-mode = \"copy\"' >> ~/.config/uv/uv.toml && npm run build && rm -rf node_modules \"Menu images\"",
+  "buildCommand": "npm run build && rm -rf node_modules \"Menu images\"",
   "installCommand": "npm install --legacy-peer-deps",
   "framework": "vite",
   "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/api/index"
-    },
     {
       "source": "/(.*)",
       "destination": "/index.html"
@@ -22,10 +18,5 @@
         }
       ]
     }
-  ],
-  "functions": {
-    "api/**/*.py": {
-      "excludeFiles": "{node_modules/**,src/**,public/**,dist/**,Menu images/**,.vercel/**,.git/**}"
-    }
-  }
+  ]
 }

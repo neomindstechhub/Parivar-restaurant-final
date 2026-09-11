@@ -1,7 +1,10 @@
 import uuid
 from pathlib import Path
 
-from fastapi import APIRouter, File, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+
+from app.database import models
+from app.api import deps
 
 router = APIRouter()
 
@@ -11,7 +14,10 @@ MAX_SIZE_BYTES = 5 * 1024 * 1024
 
 
 @router.post("/")
-async def upload_image(file: UploadFile = File(...)):
+async def upload_image(
+    file: UploadFile = File(...),
+    current_user: models.User = Depends(deps.require_role([models.UserRole.SUPER_ADMIN, models.UserRole.MANAGER])),
+):
     if file.content_type not in ALLOWED_TYPES:
         raise HTTPException(status_code=400, detail="Only JPEG, PNG, WebP, and GIF images are allowed")
 
@@ -31,4 +37,4 @@ async def upload_image(file: UploadFile = File(...)):
     destination = UPLOAD_DIR / filename
     destination.write_bytes(content)
 
-    return {"url": f"http://localhost:8000/uploads/{filename}"}
+    return {"url": f"/uploads/{filename}"}

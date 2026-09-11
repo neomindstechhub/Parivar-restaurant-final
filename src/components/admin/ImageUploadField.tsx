@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { ImagePlus, Loader2, X } from "lucide-react";
 import axios from "axios";
+import { resolveImageUrl } from "@/utils/imageUrl";
 
 interface ImageUploadFieldProps {
   value: string;
@@ -53,7 +54,7 @@ export function ImageUploadField({ value, onChange, label = "Dish Image" }: Imag
       <div className="space-y-3">
         {value ? (
           <div className="relative w-full h-36 rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
-            <img src={value} alt="Dish preview" className="w-full h-full object-cover" />
+            <img src={resolveImageUrl(value)} alt="Dish preview" className="w-full h-full object-cover" />
             <button
               type="button"
               onClick={() => onChange("")}

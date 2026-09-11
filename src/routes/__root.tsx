@@ -80,10 +80,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Parivar Restaurant" },
-      { name: "description", content: "Authentic Hyderabadi fine dining in Sydney — biryani, kebabs, and royal Nizami heritage served as family." },
+      {
+        name: "description",
+        content:
+          "Authentic Hyderabadi fine dining in Sydney — biryani, kebabs, and royal Nizami heritage served as family.",
+      },
       { name: "author", content: "Parivar Restaurant" },
       { property: "og:title", content: "Parivar Restaurant" },
-      { property: "og:description", content: "Authentic Hyderabadi fine dining in Sydney — biryani, kebabs, and royal Nizami heritage served as family." },
+      {
+        property: "og:description",
+        content:
+          "Authentic Hyderabadi fine dining in Sydney — biryani, kebabs, and royal Nizami heritage served as family.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],

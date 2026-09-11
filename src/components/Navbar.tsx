@@ -10,7 +10,7 @@ import { HalalBadge } from "./HalalBadge";
 const links = [
   { label: "Home", hash: "home" },
   { label: "Today's Special", hash: "specials" },
-  { label: "Menu", hash: "menu" },
+  { label: "Menu", to: "/menu" },
   { label: "Catering", hash: "catering" },
   { label: "About", hash: "about" },
   { label: "Contact", hash: "contact" },
@@ -55,10 +55,10 @@ export function Navbar() {
 
           <ul className="hidden md:flex items-center gap-10 text-[15px] font-medium tracking-wide">
             {links.map((l) => (
-              <li key={l.hash}>
+              <li key={l.label}>
                 <Link
-                  to="/"
-                  hash={l.hash}
+                  to={l.to ?? "/"}
+                  hash={l.to ? undefined : l.hash}
                   className="relative block transition-all duration-300 text-[#042416] hover:text-[#D4A017] hover:-translate-y-0.5 after:content-[''] after:absolute after:-bottom-1.5 after:left-1/2 after:-translate-x-1/2 after:h-[1px] after:w-0 hover:after:w-full after:bg-[#D4A017] after:transition-all after:duration-300"
                 >
                   {l.label}
@@ -69,8 +69,7 @@ export function Navbar() {
 
           <div className="flex items-center gap-4 md:gap-6">
             <Link
-              to="/"
-              hash="menu"
+              to="/menu"
               className="hidden md:inline-flex items-center justify-center px-8 py-3 rounded-full text-sm font-semibold tracking-wider transition-all duration-300 hover:-translate-y-0.5 text-white bg-[#D4A017] hover:bg-[#E0B03D]"
             >
               ORDER NOW
@@ -128,14 +127,14 @@ export function Navbar() {
             <ul className="flex-1 flex flex-col items-center justify-center gap-10 text-3xl font-display">
               {links.map((l, i) => (
                 <motion.li
-                  key={l.hash}
+                  key={l.label}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 + i * 0.07 }}
                 >
                   <Link
-                    to="/"
-                    hash={l.hash}
+                    to={l.to ?? "/"}
+                    hash={l.to ? undefined : l.hash}
                     onClick={() => setOpen(false)}
                     className="transition-colors duration-300 text-[#042416] hover:text-[#D4A017]"
                   >
@@ -149,8 +148,7 @@ export function Navbar() {
                 transition={{ delay: 0.5 }}
               >
                 <Link
-                  to="/"
-                  hash="menu"
+                  to="/menu"
                   onClick={() => setOpen(false)}
                   className="mt-6 inline-block px-10 py-4 rounded-full text-base font-semibold tracking-wider text-white bg-[#D4A017]"
                 >

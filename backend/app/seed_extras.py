@@ -28,7 +28,7 @@ SPECIAL_ITEMS = [
 MAIN_MENU = {
     "Entrée": [
         {"name": "Tandoori (Half)", "desc": "Half tandoori chicken, marinated and charred", "price": 11.99, "img": "https://images.unsplash.com/photo-1610057099431-d73a1c9d2f2f?q=80&w=800&auto=format&fit=crop"},
-        {"name": "Tandoori (Full)", "desc": "Full tandoori chicken, smoky and juicy", "price": 17.99, "img": "https://images.unsplash.com/photo-1599487405902-1823ebce1711?q=80&w=800&auto=format&fit=crop"},
+        {"name": "Tandoori (Full)", "desc": "Full tandoori chicken, smoky and juicy", "price": 17.99, "img": "https://imgs.search.brave.com/jNKHIdPcMvtIdQAyweUwMBkc5AKdR2uoXL_kdOQ3z98/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9pbWcu/bWFnbmlmaWMuY29t/L3ByZW1pdW0tcGhv/dG8vdGFuZG9vcmkt/Y2hpY2tlbi1wcmVw/YXJlZC1ieS1yb2Fz/dGluZy1jaGlja2Vu/LW1hcmluYXRlZC15/b2dodXJ0LXNwaWNl/cy10YW5kb29yLXNl/cnZlZC13b29kZW4t/cnVzdGljLWJhY2tn/cm91bmQtc2VsZWN0/aXZlLWZvY3VzXzcy/NjM2My00OTguanBn/P3NlbXQ9YWlzX2h5/YnJpZCZ3PTc0MCZx/PTgw"},
         {"name": "Chicken Tikka", "desc": "Boneless chicken pieces, spiced and grilled", "price": 14.99, "img": "https://images.unsplash.com/photo-1565557623262-b51c2513a641?q=80&w=800&auto=format&fit=crop"},
         {"name": "Sheekh Kebab", "desc": "Minced meat skewers with aromatic spices", "price": 13.99, "img": "https://res.cloudinary.com/akmdvmmw/image/upload/v1787056642/8_nodyar.webp"},
         {"name": "Fish Fry (Basa)", "desc": "Crispy fried basa fish with spices", "price": 14.99, "img": "https://res.cloudinary.com/akmdvmmw/image/upload/v1787056736/7_csyno8.avif"},

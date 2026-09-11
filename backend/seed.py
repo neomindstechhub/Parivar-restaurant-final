@@ -105,37 +105,37 @@ async def seed_data():
     
     logger.info("Seeding data...")
     async with AsyncSessionLocal() as session:
-        # Check if already seeded
+        # Skip the placeholder menu catalog if any category already exists
+        # (seed_extras.py auto-seeds "Add-ons"/"Today's Special" on every
+        # startup) - but admin/table seeding below must still run regardless,
+        # since each has its own idempotency check.
         from sqlalchemy import select
         result = await session.execute(select(models.Category))
         if result.scalars().first():
-            logger.info("Database already seeded.")
-            return
-
-        for cat_name, items in menuData.items():
-            cat = models.Category(
-                name=cat_name, 
-                description=f"Authentic {cat_name}",
-                image_url=category_images.get(cat_name)
-            )
-            session.add(cat)
-            await session.commit()
-            await session.refresh(cat)
-
-            for item in items:
-                menu_item = models.MenuItem(
-                    category_id=cat.id,
-                    name=item["name"],
-                    description=item["desc"],
-                    price=item["price"],
-                    image_url=item["img"]
+            logger.info("Categories already exist, skipping placeholder menu seed.")
+        else:
+            for cat_name, items in menuData.items():
+                cat = models.Category(
+                    name=cat_name,
+                    description=f"Authentic {cat_name}",
+                    image_url=category_images.get(cat_name)
                 )
-                session.add(menu_item)
-            
-            await session.commit()
+                session.add(cat)
+                await session.commit()
+                await session.refresh(cat)
 
-            await session.commit()
-            
+                for item in items:
+                    menu_item = models.MenuItem(
+                        category_id=cat.id,
+                        name=item["name"],
+                        description=item["desc"],
+                        price=item["price"],
+                        image_url=item["img"]
+                    )
+                    session.add(menu_item)
+
+                await session.commit()
+
         # Seed Super Admin User
         result = await session.execute(select(models.User).where(models.User.username == "admin"))
         if not result.scalars().first():

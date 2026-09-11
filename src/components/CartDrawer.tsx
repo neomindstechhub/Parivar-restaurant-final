@@ -13,7 +13,7 @@ interface CartDrawerProps {
 }
 
 export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
-  const { items, removeItem, updateQuantity, getTotal, clearCart } = useCartStore();
+  const { items, addItem, removeItem, updateQuantity, getTotal, clearCart } = useCartStore();
   const navigate = useNavigate();
 
   const [orderType, setOrderType] = useState<'DINE_IN' | 'TAKE_AWAY'>('DINE_IN');
@@ -30,6 +30,18 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
     queryFn: async () => {
       const res = await fetch((import.meta.env.VITE_API_URL || "http://localhost:8000") + "/api/v1/tables");
       return res.json();
+    },
+    enabled: isOpen,
+  });
+
+  // Fetch Add-ons so customers can add extras before placing the order too
+  const { data: addons } = useQuery({
+    queryKey: ["addons-cart-drawer"],
+    queryFn: async () => {
+      const res = await fetch((import.meta.env.VITE_API_URL || "http://localhost:8000") + "/api/v1/menu?category=" + encodeURIComponent("Add-ons"));
+      if (!res.ok) throw new Error("Failed to fetch add-ons");
+      const data = await res.json();
+      return (data || []).filter((item: any) => item.is_available !== false);
     },
     enabled: isOpen,
   });
@@ -163,7 +175,46 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                   </div>
                 ))
               )}
-              
+
+              {items.length > 0 && addons && addons.length > 0 && (
+                <div className="space-y-2">
+                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Add extras?</h3>
+                  {addons.map((addon: any) => (
+                    <div key={addon.id ?? addon.name} className="flex items-center gap-3 p-2.5 rounded-lg border border-gold/10 bg-white/40">
+                      <div className="w-10 h-10 shrink-0 rounded-md overflow-hidden">
+                        <img
+                          src={resolveImageUrl(addon.image_url, addon.category?.name, addon.name)}
+                          alt={addon.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = logo;
+                          }}
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-foreground truncate">{addon.name}</p>
+                        <p className="text-xs text-gold font-semibold">${addon.price.toFixed(2)}</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          addItem({
+                            id: addon.id ? String(addon.id) : addon.name,
+                            name: addon.name,
+                            price: addon.price,
+                            image_url: addon.image_url,
+                          })
+                        }
+                        className="shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-[#0B5D3B] text-cream hover:bg-[#D4A017] transition-colors"
+                      >
+                        <Plus className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
               {items.length > 0 && (
                 <div className="mt-6 p-4 rounded-xl border border-gold/10 bg-white/30 space-y-4">
                   <h3 className="font-display font-semibold text-lg text-foreground">Order Details</h3>

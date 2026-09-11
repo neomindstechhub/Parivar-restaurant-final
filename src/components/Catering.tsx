@@ -1,5 +1,7 @@
 import { motion } from "framer-motion";
-import { Heart, Briefcase, Users, Sparkles } from "lucide-react";
+import { Heart, Briefcase, Users, Sparkles, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 
 const events = [
   { icon: Heart, title: "Weddings", desc: "Regal banquets crafted for your most sacred day." },
@@ -9,6 +11,52 @@ const events = [
 ];
 
 export function Catering() {
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [eventType, setEventType] = useState("");
+  const [eventDate, setEventDate] = useState("");
+  const [guestCount, setGuestCount] = useState("");
+  const [requirements, setRequirements] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const isValidPhone = /^\d{10}$/.test(phone.replace(/\D/g, ""));
+  const canSubmit = name.trim().length > 0 && isValidPhone && !isSubmitting;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!canSubmit) return;
+    setIsSubmitting(true);
+    try {
+      const res = await fetch((import.meta.env.VITE_API_URL || "http://localhost:8000") + "/api/v1/catering/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customer_name: name,
+          phone,
+          email: email || undefined,
+          event_type: eventType || undefined,
+          event_date: eventDate || undefined,
+          guest_count: guestCount ? parseInt(guestCount, 10) : undefined,
+          requirements: requirements || undefined,
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to submit your request. Please try again.");
+      toast.success("Request sent! We'll be in touch shortly to discuss your event.");
+      setName("");
+      setPhone("");
+      setEmail("");
+      setEventType("");
+      setEventDate("");
+      setGuestCount("");
+      setRequirements("");
+    } catch (err: any) {
+      toast.error(err.message || "Something went wrong. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <section id="catering" className="py-32 relative">
       <div className="absolute inset-0 -z-10" style={{
@@ -44,15 +92,119 @@ export function Catering() {
           ))}
         </div>
 
-        <div className="text-center">
+        <div className="text-center mb-16">
           <a
-            href="#contact"
+            href="#catering-form"
             className="inline-flex items-center justify-center px-10 py-4 rounded-full text-sm uppercase tracking-[0.25em] font-medium text-primary-foreground shadow-gold-glow hover:scale-105 transition-transform"
             style={{ background: "var(--gradient-gold)" }}
           >
             Book Catering
           </a>
         </div>
+
+        <motion.form
+          id="catering-form"
+          onSubmit={handleSubmit}
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="glass rounded-2xl p-8 md:p-10 max-w-2xl mx-auto space-y-5 scroll-mt-32"
+        >
+          <div className="grid sm:grid-cols-2 gap-5">
+            <div>
+              <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Name</label>
+              <input
+                type="text"
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Your Name"
+                className="w-full px-4 py-3 bg-background border border-gold/20 rounded-lg text-sm focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Phone Number</label>
+              <input
+                type="tel"
+                required
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="Your 10-digit Phone Number"
+                className={`w-full px-4 py-3 bg-background border ${phone && !isValidPhone ? "border-red-500/50" : "border-gold/20"} rounded-lg text-sm focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold`}
+              />
+              {phone && !isValidPhone && <p className="text-[10px] text-red-500 mt-1">Must be 10 digits</p>}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Email (optional)</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+              className="w-full px-4 py-3 bg-background border border-gold/20 rounded-lg text-sm focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold"
+            />
+          </div>
+
+          <div className="grid sm:grid-cols-3 gap-5">
+            <div>
+              <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Event Type</label>
+              <select
+                value={eventType}
+                onChange={(e) => setEventType(e.target.value)}
+                className="w-full px-4 py-3 bg-background border border-gold/20 rounded-lg text-sm focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold"
+              >
+                <option value="">-- Select --</option>
+                {events.map((ev) => (
+                  <option key={ev.title} value={ev.title}>{ev.title}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Event Date</label>
+              <input
+                type="date"
+                value={eventDate}
+                onChange={(e) => setEventDate(e.target.value)}
+                className="w-full px-4 py-3 bg-background border border-gold/20 rounded-lg text-sm focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Guest Count</label>
+              <input
+                type="number"
+                min={1}
+                value={guestCount}
+                onChange={(e) => setGuestCount(e.target.value)}
+                placeholder="e.g. 50"
+                className="w-full px-4 py-3 bg-background border border-gold/20 rounded-lg text-sm focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Requirements</label>
+            <textarea
+              value={requirements}
+              onChange={(e) => setRequirements(e.target.value)}
+              rows={4}
+              placeholder="Tell us about your event, dietary needs, or anything else we should know..."
+              className="w-full px-4 py-3 bg-background border border-gold/20 rounded-lg text-sm focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold resize-none"
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={!canSubmit}
+            className="w-full inline-flex items-center justify-center gap-2 px-10 py-4 rounded-full text-sm uppercase tracking-[0.25em] font-medium text-primary-foreground shadow-gold-glow hover:scale-[1.02] transition-transform disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+            style={{ background: "var(--gradient-gold)" }}
+          >
+            {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+            {isSubmitting ? "Sending..." : "Submit Request"}
+          </button>
+        </motion.form>
       </div>
     </section>
   );

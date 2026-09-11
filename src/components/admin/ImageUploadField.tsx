@@ -33,12 +33,16 @@ export function ImageUploadField({ value, onChange, label = "Dish Image" }: Imag
       const formData = new FormData();
       formData.append("file", file);
       const token = localStorage.getItem("parivar_admin_token");
-      const res = await axios.post((import.meta.env.VITE_API_URL || "http://localhost:8000") + "/api/v1/uploads/", formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
+      const res = await axios.post(
+        (import.meta.env.VITE_API_URL || "http://localhost:8000") + "/api/v1/uploads/",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
         },
-      });
+      );
       onChange(res.data.url);
     } catch {
       setError("Failed to upload image. Please try again.");
@@ -54,7 +58,11 @@ export function ImageUploadField({ value, onChange, label = "Dish Image" }: Imag
       <div className="space-y-3">
         {value ? (
           <div className="relative w-full h-36 rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
-            <img src={resolveImageUrl(value)} alt="Dish preview" className="w-full h-full object-cover" />
+            <img
+              src={resolveImageUrl(value)}
+              alt="Dish preview"
+              className="w-full h-full object-cover"
+            />
             <button
               type="button"
               onClick={() => onChange("")}

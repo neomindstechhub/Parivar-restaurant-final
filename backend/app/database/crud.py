@@ -42,11 +42,12 @@ async def get_menu_items_by_category(db: AsyncSession, category_name: str):
         select(models.MenuItem)
         .join(models.Category)
         .filter(models.Category.name == category_name)
+        .order_by(models.MenuItem.id)
     )
     return result.scalars().all()
 
 async def get_menu_items(db: AsyncSession):
-    result = await db.execute(select(models.MenuItem))
+    result = await db.execute(select(models.MenuItem).order_by(models.MenuItem.id))
     return result.scalars().all()
 
 async def create_menu_item(db: AsyncSession, menu_item: schemas.MenuItemCreate):

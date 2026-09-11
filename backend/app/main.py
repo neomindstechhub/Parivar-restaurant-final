@@ -18,7 +18,7 @@ from app.modules.payments.router import router as payments_router
 from app.modules.users.router import router as users_router
 from app.modules.catering.router import router as catering_router
 from app.modules.uploads.router import router as uploads_router
-from app.seed_extras import seed_addons_and_specials
+from app.seed_extras import seed_addons_and_specials, seed_main_menu
 
 UPLOAD_DIR = Path(__file__).resolve().parent.parent / "uploads"
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
@@ -56,6 +56,7 @@ app.mount("/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
 async def on_startup():
     await init_models()
     await seed_addons_and_specials()
+    await seed_main_menu()
 
 @app.get("/")
 def read_root():

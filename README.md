@@ -11,8 +11,8 @@ A modern, full-stack restaurant operating system powering both the customer-faci
 
 | Component | Technology | Hosting / Platform | Production Domain | Fallback / Staging Domain |
 |---|---|---|---|---|
-| **Frontend** | React 19, TanStack Start, Vite 7, Nitro, Tailwind CSS | **Vercel** | `https://parivar.restaurant` | `https://parivar-restaurant-final.vercel.app` |
-| **Backend** | Python 3.12, FastAPI, Uvicorn, WebSockets, SQLAlchemy (Async) | **Render** (Web Service) | `https://api.parivar.restaurant` | `https://parivar-restaurant-final.onrender.com` |
+| **Frontend** | React 19, TanStack Start, Vite 7, Nitro, Tailwind CSS | **Vercel** | `https://parivar.restaurant` | `https://parivar-restaurant-gamma.vercel.app` (or `-final`) |
+| **Backend** | Python 3.12, FastAPI, Uvicorn, WebSockets, SQLAlchemy (Async) | **Render** (Web Service) | `https://api.parivar.restaurant` | `https://parivar-restaurant-backend.onrender.com` (or `-final`) |
 | **Database** | PostgreSQL 16+ (Serverless) | **Neon** | Direct AWS endpoint (`ap-southeast-2`) | Local SQLite (`parivar.db`) |
 
 > [!NOTE]

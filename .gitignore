@@ -49,3 +49,8 @@ backend/.venv
 backend/venv
 node_modules
 .vercel
+
+# SQLite databases
+*.db
+*.sqlite
+*.sqlite3

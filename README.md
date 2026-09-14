@@ -1,97 +1,175 @@
 # Parivar Restaurant OS
 
-A restaurant ordering + back-of-house system:
+A modern, full-stack restaurant operating system powering both the customer-facing digital ordering experience and back-of-house operations.
 
-- **Public site** — browse the menu, place dine-in/takeaway orders, track
-  order status live over WebSocket.
-- **Admin "Command Center"** (`/admin`) — menu & category management, table
-  floor plan, kitchen queue, billing/payments, catering requests, user
-  management.
+- **Public Ordering Site** — Interactive menu browsing, dine-in and takeaway ordering, add-on recommendations, table selection, and real-time live order tracking via WebSockets.
+- **Admin Command Center (`/admin`)** — Real-time kitchen display queue, interactive table floor plan, billing and receipt generation, menu and category catalog management, catering requests, and role-based staff access.
 
-**Stack:** TanStack Start (React 19 + Vite 7, SSR via Nitro) on the frontend,
-FastAPI + SQLAlchemy (async) + JWT auth on the backend.
+---
 
-For open issues, deployment status, and what's left before this is properly
-live, see [`NEXT_STEPS.md`](./NEXT_STEPS.md) — that file tracks the current
-punch list and goes stale faster than this one.
+## 🏗️ Architecture & Deployment
 
-## Prerequisites
+| Component | Technology | Hosting / Platform | Production Domain | Fallback / Staging Domain |
+|---|---|---|---|---|
+| **Frontend** | React 19, TanStack Start, Vite 7, Nitro, Tailwind CSS | **Vercel** | `https://parivar.restaurant` | `https://parivar-restaurant-final.vercel.app` |
+| **Backend** | Python 3.12, FastAPI, Uvicorn, WebSockets, SQLAlchemy (Async) | **Render** (Web Service) | `https://api.parivar.restaurant` | `https://parivar-restaurant-final.onrender.com` |
+| **Database** | PostgreSQL 16+ (Serverless) | **Neon** | Direct AWS endpoint (`ap-southeast-2`) | Local SQLite (`parivar.db`) |
 
-- **Node.js 20+** (developed against Node 24) and **npm** — the repo commits
-  `package-lock.json`; use npm, not `bun` (a `bun.lock` also exists but isn't
-  the one actually used to build/deploy).
-- **Python 3.12+** for the backend. [`uv`](https://docs.astral.sh/uv/) is
-  recommended — it can install and manage the Python version for you.
+> [!NOTE]
+> **Why Dual Deployment?**
+> The backend runs as a persistent service on Render rather than Vercel Serverless to provide native support for **persistent WebSockets** (real-time order and kitchen queues) and unconstrained background worker tasks.
 
-## Frontend setup
+---
 
-```bash
-npm install
-npm run dev       # http://localhost:8080 (Vite dev server)
-npm run build     # production build (emits .vercel/output via Nitro's vercel preset)
-npm run lint
-npm test          # vitest
-```
+## 💻 Local Development Setup
 
-A root `.npmrc` sets `legacy-peer-deps=true` — one dev dependency
-(`nitro`, pinned to a dated beta) doesn't cleanly satisfy npm's strict
-peer-dependency resolution against `@lovable.dev/vite-tanstack-config`'s
-declared range, even though the actual versions are compatible. This matches
-what the Vercel build already does; without it, plain `npm install` fails.
+### Prerequisites
+- **Node.js 20+** and **npm** (uses `package-lock.json`)
+- **Python 3.12** (must be 3.12 for pre-compiled binary wheel support)
 
-Copy `.env.example` to `.env` and adjust for local dev:
+---
 
-```
-VITE_API_URL=http://localhost:8000
-VITE_WS_URL=ws://localhost:8000/ws
-```
+### Step 1: Backend Setup (FastAPI + SQLite)
 
-(Do **not** include `/api/v1` in `VITE_API_URL` — the frontend code appends
-that itself on every call.)
-
-## Backend setup
+Open a terminal and run:
 
 ```bash
 cd backend
-uv venv .venv --python 3.12
-uv pip install -r requirements.txt --python .venv
-.venv/Scripts/python.exe -m uvicorn app.main:app --reload --port 8000   # Windows
-# .venv/bin/python -m uvicorn app.main:app --reload --port 8000        # macOS/Linux
+
+# Create and activate Python virtual environment
+python3 -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Seed the local database (creates super admin and tables T01-T10)
+python seed.py
+
+# Start the local development server
+uvicorn app.main:app --reload --port 8000
 ```
 
-This creates/seeds a local `parivar.db` SQLite file on first run (see
-`backend/seed.py`) and serves:
-- API at `http://localhost:8000/api/v1/...`
-- Interactive docs at `http://localhost:8000/docs`
-- WebSocket at `ws://localhost:8000/ws`
+- **API Base**: `http://localhost:8000`
+- **Interactive Swagger Docs**: `http://localhost:8000/docs`
+- **WebSocket Endpoint**: `ws://localhost:8000/ws`
+- **Default Super Admin**: `admin` / `admin123`
 
-Default env vars (see `.env.example` for the full list) fall back to local
-SQLite and a dev `SECRET_KEY` if unset — fine for local dev, **must** be
-overridden in any real deployment (a real `DATABASE_URL` pointing at
-Postgres, a random `SECRET_KEY`, and `CORS_ORIGINS` set to your real
-frontend domain — see `render.yaml` for the intended production shape).
+---
 
-A default admin account is seeded: `admin` / `admin123`. Change this before
-any deployment goes live.
+### Step 2: Frontend Setup (TanStack Start / Vite)
 
-## Repo layout
+In a second terminal window (from the repository root):
 
-```
-src/            frontend (TanStack Start routes, components, state)
-backend/        FastAPI app — the real backend (deploy target: Render + Postgres)
-api/            the same FastAPI app repackaged as a Vercel serverless function
-                (SQLite in /tmp — ephemeral, demo-only, not for real data)
-public/         static assets (menu images, etc.)
+```bash
+# Install dependencies (flag required for React 19 peer dependencies)
+npm install --legacy-peer-deps
+
+# Start Vite dev server
+npm run dev
 ```
 
-Two backend deployment paths exist in this repo (`backend/` → Render,
-`api/` → Vercel serverless). See `NEXT_STEPS.md` for why, and which one to
-actually build on.
+- **Frontend App**: `http://localhost:8080` (or `http://localhost:5173`)
+- **Admin Dashboard**: `http://localhost:8080/admin`
 
-## Known gotchas
+> [!TIP]
+> In local development, the frontend automatically falls back to `http://localhost:8000` and `ws://localhost:8000` if environment variables are not set. No `.env` is required for local dev.
 
-- `npm run lint` will show a large number of pre-existing `prettier/prettier`
-  style findings (quote style, trailing commas) — real but low-priority
-  cleanup debt, not a blocker.
-- Generated files (`.vercel/output`, `backend/**/__pycache__`,
-  `tsconfig.tsbuildinfo`) are gitignored — don't `git add -f` them back in.
+---
+
+## 🚀 Production Deployment Settings
+
+### 1. Frontend (Vercel)
+
+- **Framework Preset**: `Vite` (defined in `vercel.json`)
+- **Root Directory**: `./` (Repository root)
+- **Install Command**: `npm install --legacy-peer-deps`
+- **Build Command**: `npm run build`
+- **Output Directory**: Default / leave empty (Nitro's Vercel preset emits `.vercel/output`)
+
+#### Environment Variables (Vercel Dashboard):
+```ini
+VITE_API_URL=https://api.parivar.restaurant
+VITE_WS_URL=wss://api.parivar.restaurant
+```
+*(CRITICAL: Do **not** append `/api/v1` to `VITE_API_URL` or `/ws` to `VITE_WS_URL`. The frontend appends these paths automatically.)*
+
+---
+
+### 2. Backend (Render)
+
+- **Service Type**: `Web Service`
+- **Runtime**: `Python`
+- **Root Directory**: `backend` *(CRITICAL)*
+- **Build Command**: `pip install -r requirements.txt`
+- **Start Command**: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+
+#### Environment Variables (Render Dashboard):
+
+| Variable | Recommended Value | Description |
+|---|---|---|
+| `PYTHON_VERSION` | `3.12.10` | **Mandatory**. Prevents Render defaulting to 3.13 (which breaks `cryptography`/`bcrypt` wheels). |
+| `DATABASE_URL` | `postgresql+asyncpg://<user>:<password>@<host>/<dbname>` | Neon direct connection string (see below). |
+| `SECRET_KEY` | *(Random 32+ character string)* | Used for JWT authentication signing. |
+| `ALGORITHM` | `HS256` | JWT signing algorithm. |
+| `ACCESS_TOKEN_EXPIRE_MINUTES` | `10080` | Session lifetime (7 days). |
+| `CORS_ORIGINS` | `https://parivar.restaurant,https://www.parivar.restaurant,http://localhost:5173` | Allowed frontend origins without trailing slashes. |
+
+#### Neon PostgreSQL Connection Format:
+When copying the connection URI from Neon:
+1. Replace `postgresql://` with `postgresql+asyncpg://`
+2. Use the **Direct (non-pooler)** endpoint (e.g. `ep-example.ap-southeast-2.aws.neon.tech`)
+3. Strip `?sslmode=require` from the end (SQLAlchemy passes `connect_args={"ssl": "require"}` automatically)
+
+#### First-Time Database Seeding (Production):
+Run `python seed.py` once via Render's Web Shell to seed the `admin` account and initial tables. The main menu and specials are auto-seeded on application startup.
+
+---
+
+## 🧪 Deployment Verification
+
+This repository includes an automated verification script to test backend health, CORS headers, and menu data:
+
+```bash
+# Test active production deployment:
+python3 scripts/verify_deployment.py --backend https://api.parivar.restaurant --frontend https://parivar.restaurant
+
+# Test default/fallback deployment:
+python3 scripts/verify_deployment.py
+```
+
+---
+
+## 📁 Repository Layout
+
+```
+├── backend/                  # FastAPI backend application
+│   ├── app/
+│   │   ├── core/             # Auth, settings, websockets
+│   │   ├── database/         # SQLAlchemy models, engine, schemas
+│   │   └── modules/          # Menu, categories, orders, tables, kitchen, billing
+│   ├── requirements.txt      # Pinned backend dependencies
+│   └── seed.py               # Database seeder (admin user & floor tables)
+├── public/                   # Static frontend assets
+│   ├── frames/               # Hero animation webp frames
+│   └── menu-images/          # Public menu catalog images
+├── scripts/
+│   ├── extract-frames.mjs    # Video frame extractor utility
+│   └── verify_deployment.py  # Production deployment health and CORS validator
+├── src/                      # TanStack Start frontend application
+│   ├── components/           # UI components (Hero, CartDrawer, Navbar, Admin views)
+│   ├── routes/               # TanStack file-based routes
+│   └── utils/                # Image resolution & API helpers
+├── render.yaml               # Render Infrastructure-as-Code blueprint
+├── vercel.json               # Vercel SPA rewrites, headers, and build config
+└── vite.config.ts            # Vite + TanStack Start + Nitro config
+```
+
+---
+
+## ⚠️ Important Rules & Gotchas
+
+1. **URL Concatenation in Frontend**: Every API call appends `'/api/v1/...'` to `VITE_API_URL`. Never configure `VITE_API_URL` with `/api/v1`.
+2. **WebSocket URL Concatenation**: `useWebSocket.ts` appends `'/ws'` to `VITE_WS_URL`. Never configure `VITE_WS_URL` with `/ws`.
+3. **CORS Configuration**: `CORS_ORIGINS` on Render must include the exact frontend origin(s) with no trailing slash. Never use `"*"` in production.
+4. **Local Image Backups**: Raw uncompressed images are preserved in `menu-images.local/` (gitignored) to keep repository deployments fast and lightweight.

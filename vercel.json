@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npm run build && rm -rf node_modules \"Menu images\"",
+  "buildCommand": "npm run build",
   "installCommand": "npm install --legacy-peer-deps",
   "framework": "vite",
   "rewrites": [
